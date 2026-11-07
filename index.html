@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>عطاء ميسان | منصة التكافل والتبرع المباشر</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Firebase SDKs & Config -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // بيانات مشروعك المستخرجة من Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1H_kxb3v8hVjh16kAu5YqEriexh6GdPk",
+      authDomain: "ataa-maysan.firebaseapp.com",
+      projectId: "ataa-maysan",
+      storageBucket: "ataa-maysan.firebasestorage.app",
+      messagingSenderId: "596899451653",
+      appId: "1:596899451653:web:4428a4dc2c676c840bdd6c",
+      measurementId: "G-YVBC2MDES5"
+    };
+
+    // Initialize Firebase & Firestore
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Make db functions available globally
+    window.db = db;
+    window.collection = collection;
+    window.addDoc = addDoc;
+    window.getDocs = getDocs;
+    window.query = query;
+    window.orderBy = orderBy;
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Tajawal', 'Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            emerald: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body { fontFamily: 'Tajawal', sans-serif; }
+    .card-hover { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-3px); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
+          <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent dark:from-emerald-400 dark:to-teal-300">
+            عطاء ميسان
+          </h1>
+          <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">منصة التكافل لأهل ميسان</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button id="themeToggle" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
+          <i data-lucide="moon" class="w-5 h-5 hidden dark:block"></i>
+          <i data-lucide="sun" class="w-5 h-5 block dark:hidden"></i>
+        </button>
+
+        <button onclick="openModal()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl font-medium text-xs sm:text-sm transition-all shadow-md shadow-emerald-600/20 active:scale-95 shrink-0">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>أضف تبرعاً</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Safety Banner -->
+  <div class="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-200 text-xs py-2 px-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0"></i>
+        <span class="leading-relaxed"><strong>تنبيه:</strong> يمنع عرض الأدوية. المنصة مخصصة للأثاث، الملابس، الكتب، والأجهزة المنزلية فقط.</span>
+      </div>
+      <span class="hidden md:inline-block text-[11px] bg-amber-200/60 dark:bg-amber-900/60 px-2.5 py-0.5 rounded-full font-semibold shrink-0">بدون تسجيل دخول</span>
+    </div>
+  </div>
+
+  <!-- Main Section -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+
+    <!-- Hero Title -->
+    <div class="text-center max-w-3xl mx-auto space-y-3">
+      <h2 class="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+        شارك الفائض مع أهلنا في <span class="text-emerald-600 dark:text-emerald-400">ميسان</span>
+      </h2>
+      <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
+        منصة تكافلية لعرض وتداول التبرعات العينية بين أبناء المحافظة مباشرة وبدون إسطوانات تفتيش أو تسجيل.
+      </p>
+
+      <!-- Search & Area Filters -->
+      <div class="pt-2 flex flex-col sm:flex-row gap-3 items-center justify-center">
+        <div class="relative w-full sm:w-80 md:w-96">
+          <input type="text" id="searchInput" onkeyup="filterItems()" placeholder="ابحث عن أثاث، كتب، ملازم، أجهزة..." class="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-500 shadow-sm" />
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3.5 top-3.5"></i>
+        </div>
+
+        <div class="relative w-full sm:w-48 md:w-56">
+          <select id="districtFilter" onchange="filterItems()" class="w-full px-4 py-2.5 sm:py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-500 shadow-sm appearance-none cursor-pointer">
+            <option value="all">كل مناطق ميسان</option>
+            <option value="العمارة - المركز">العمارة - المركز</option>
+            <option value="حي المعلمين">حي المعلمين</option>
+            <option value="حي الحكيم">حي الحكيم</option>
+            <option value="حي عواشة">حي عواشة</option>
+            <option value="حي الرسالة">حي الرسالة</option>
+            <option value="الميمونة">قضاء الميمونة</option>
+            <option value="قلعة صالح">قضاء قلعة صالح</option>
+            <option value="علي الغربي">قضاء علي الغربي</option>
+            <option value="المجر الكبير">قضاء المجر الكبير</option>
+            <option value="منطقة أخرى">منطقة أخرى بميسان</option>
+          </select>
+          <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="categoryContainer">
+      <button onclick="setCategory('all')" data-cat="all" class="cat-btn active bg-emerald-600 text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0">الكل</button>
+      <button onclick="setCategory('أثاث')" data-cat="أثاث" class="cat-btn bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0">أثاث ومفروشات</button>
+      <button onclick="setCategory('أجهزة')" data-cat="أجهزة" class="cat-btn bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0">أجهزة كهربائية</button>
+      <button onclick="setCategory('ملابس')" data-cat="ملابس" class="cat-btn bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0">ملابس وأحذية</button>
+      <button onclick="setCategory('كتب')" data-cat="كتب" class="cat-btn bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0">كتب وملازم دراسية</button>
+      <button onclick="setCategory('أطفال')" data-cat="أطفال" class="cat-btn bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0">مستلزمات أطفال</button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center py-16 text-slate-500 space-y-2">
+      <i data-lucide="loader-2" class="w-8 h-8 animate-spin mx-auto text-emerald-600"></i>
+      <p class="text-xs sm:text-sm">جاري تحميل التبرعات من قاعدة البيانات السحابية...</p>
+    </div>
+
+    <!-- Listings Grid -->
+    <div id="itemsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16 space-y-3">
+      <div class="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto text-slate-400">
+        <i data-lucide="package-open" class="w-8 h-8"></i>
+      </div>
+      <h3 class="text-base sm:text-lg font-bold text-slate-700 dark:text-slate-300">لا توجد عناصر متوفرة حالياً</h3>
+      <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">جرّب اختيار منطقة أخرى أو البحث بكلمة ثانية.</p>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6">
+    <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400 space-y-1">
+      <p>منصة **عطاء ميسان** — مبادرة خدمة مجتمعية تطوعية لأبناء محافظة ميسان.</p>
+    </div>
+  </footer>
+
+  <!-- Modal: Add Item (Full Screen on Mobile / Centered Modal on Desktop) -->
+  <div id="itemModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-900 w-full h-full sm:h-auto sm:max-h-[90vh] sm:max-w-xl sm:rounded-2xl p-5 sm:p-7 shadow-2xl border-0 sm:border border-slate-200 dark:border-slate-800 flex flex-col justify-between overflow-y-auto">
+      
+      <div class="space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5 text-emerald-600"></i>
+            إضافة تبرع عيني جديد في ميسان
+          </h3>
+          <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+        </div>
+
+        <form id="addItemForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">عنوان الغرض للتبرع *</label>
+            <input type="text" id="formTitle" required placeholder="مثال: مبردات هواء، ملازم سادس، ملابس أطفال..." class="w-full px-3.5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-500" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">التصنيف *</label>
+              <select id="formCategory" required class="w-full px-3.5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-500">
+                <option value="أثاث">أثاث ومفروشات</option>
+                <option value="أجهزة">أجهزة كهربائية</option>
+                <option value="ملابس">ملابس وأحذية</option>
+                <option value="كتب">كتب وملازم دراسية</option>
+                <option value="أطفال">مستلزمات أطفال</option>
+                <option value="أخرى">عام / أخرى</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">المنطقة في ميسان *</label>
+              <select id="formDistrict" required class="w-full px-3.5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-500">
+                <option value="العمارة - المركز">العمارة - المركز</option>
+                <option value="حي المعلمين">حي المعلمين</option>
+                <option value="حي الحكيم">حي الحكيم</option>
+                <option value="حي عواشة">حي عواشة</option>
+                <option value="حي الرسالة">حي الرسالة</option>
+                <option value="الميمونة">قضاء الميمونة</option>
+                <option value="قلعة صالح">قضاء قلعة صالح</option>
+                <option value="علي الغربي">قضاء علي الغربي</option>
+                <option value="المجر الكبير">قضاء المجر الكبير</option>
+                <option value="منطقة أخرى">منطقة أخرى</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">حالة الغرض *</label>
+            <select id="formCondition" required class="w-full px-3.5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-500">
+              <option value="ممتازة / مثل الجديد">ممتازة / مثل الجديد</option>
+              <option value="جيدة جداً">جيدة جداً</option>
+              <option value="مستعمل بحالة جيدة">مستعمل بحالة جيدة</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">تفاصيل وملاحظات الاستلام</label>
+            <textarea id="formDesc" rows="3" placeholder="اكتب تفاصيل سريعة عن مكان الاستلام أو وصف الغرض..." class="w-full px-3.5 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-emerald-500"></textarea>
+          </div>
+
+          <div class="p-4 bg-emerald-50/70 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-900/40 space-y-3">
+            <label class="block text-xs font-bold text-emerald-800 dark:text-emerald-300">طريقة التواصل (ضع وسيلة واحدة على الأقل):</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <span class="text-[11px] text-slate-600 dark:text-slate-400 block mb-1">رقم الواتساب</span>
+                <input type="text" id="formWhatsapp" placeholder="07700000000" class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono" />
+              </div>
+
+              <div>
+                <span class="text-[11px] text-slate-600 dark:text-slate-400 block mb-1">معرف تليجرام</span>
+                <input type="text" id="formTelegram" placeholder="username@" class="w-full px-3.5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-mono" />
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
+        <button type="button" onclick="closeModal()" class="w-full sm:w-auto px-5 py-3 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">إلغاء</button>
+        <button type="button" onclick="document.getElementById('addItemForm').requestSubmit()" id="submitBtn" class="w-full sm:w-auto px-6 py-3 text-xs sm:text-sm font-medium bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-md shadow-emerald-600/20 transition-all">نشر التبرع فوراً</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let currentCategory = 'all';
+    let items = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      setupTheme();
+      setTimeout(loadItemsFromFirestore, 800);
+    });
+
+    function setupTheme() {
+      document.getElementById('themeToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+      });
+    }
+
+    async function loadItemsFromFirestore() {
+      const loader = document.getElementById('loadingState');
+      try {
+        const q = window.query(window.collection(window.db, "donations"), window.orderBy("timestamp", "desc"));
+        const querySnapshot = await window.getDocs(q);
+        
+        items = [];
+        querySnapshot.forEach((doc) => {
+          items.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (loader) loader.classList.add('hidden');
+        renderItems();
+      } catch (error) {
+        console.error("Firestore error:", error);
+        if (loader) loader.innerHTML = `<p class="text-rose-500 text-xs">تعذر جلب البيانات. تأكد من تفعيل قواعد Firestore بشكل صحيح.</p>`;
+      }
+    }
+
+    function renderItems() {
+      const grid = document.getElementById('itemsGrid');
+      const emptyState = document.getElementById('emptyState');
+      const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+      const districtTerm = document.getElementById('districtFilter').value;
+
+      grid.innerHTML = '';
+
+      const filtered = items.filter(item => {
+        const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+        const matchesDistrict = districtTerm === 'all' || item.district === districtTerm;
+        const matchesSearch = item.title.toLowerCase().includes(searchTerm) || 
+                              item.description.toLowerCase().includes(searchTerm) ||
+                              item.district.toLowerCase().includes(searchTerm);
+        return matchesCategory && matchesDistrict && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      filtered.forEach(item => {
+        const waClean = item.whatsapp ? item.whatsapp.replace(/[^0-9]/g, '') : '';
+        const waMsg = encodeURIComponent(`السلام عليكم، شفت التبرع الخاص بـ (${item.title}) على منصة عطاء ميسان وحاب أستفسر عنه.`);
+        const waUrl = `https://wa.me/964${waClean.startsWith('0') ? waClean.slice(1) : waClean}?text=${waMsg}`;
+        
+        const tgClean = item.telegram ? item.telegram.replace('@', '') : '';
+        const tgUrl = `https://t.me/${tgClean}`;
+
+        const card = document.createElement('div');
+        card.className = "card-hover bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm flex flex-col justify-between space-y-4";
+        
+        card.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-900/50">
+                ${item.category}
+              </span>
+              <span class="text-[11px] text-slate-400 flex items-center gap-1">
+                <i data-lucide="clock" class="w-3 h-3"></i>
+                ${item.date || 'منذ قليل'}
+              </span>
+            </div>
+
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug">${item.title}</h3>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">${item.description}</p>
+            
+            <div class="pt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80">
+              <span class="flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                ميسان - ${item.district}
+              </span>
+              <span class="bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1 rounded-md text-[11px]">
+                الحالة: ${item.condition}
+              </span>
+            </div>
+          </div>
+
+          <div class="pt-2 flex gap-2">
+            ${item.whatsapp ? `
+              <a href="${waUrl}" target="_blank" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                واتساب
+              </a>
+            ` : ''}
+            
+            ${item.telegram ? `
+              <a href="${tgUrl}" target="_blank" class="flex-1 bg-sky-500 hover:bg-sky-600 text-white py-2.5 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                تليجرام
+              </a>
+            ` : ''}
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function filterItems() { renderItems(); }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.className = btn.dataset.cat === cat 
+          ? "cat-btn active bg-emerald-600 text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0"
+          : "cat-btn bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0";
+      });
+      renderItems();
+    }
+
+    function openModal() { document.getElementById('itemModal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('itemModal').classList.add('hidden'); }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const whatsapp = document.getElementById('formWhatsapp').value;
+      const telegram = document.getElementById('formTelegram').value;
+
+      if (!whatsapp && !telegram) {
+        alert('يرجى كتابة رقم واتساب أو معرف تليجرام واحد على الأقل لتلقي الاستفسارات.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = "جاري النشر...";
+
+      const newItem = {
+        title: document.getElementById('formTitle').value,
+        category: document.getElementById('formCategory').value,
+        district: document.getElementById('formDistrict').value,
+        condition: document.getElementById('formCondition').value,
+        description: document.getElementById('formDesc').value || 'لا توجد تفاصيل إضافية.',
+        whatsapp,
+        telegram,
+        date: 'منذ قليل',
+        timestamp: Date.now()
+      };
+
+      try {
+        await window.addDoc(window.collection(window.db, "donations"), newItem);
+        document.getElementById('addItemForm').reset();
+        closeModal();
+        await loadItemsFromFirestore();
+      } catch (err) {
+        alert("حدث خطأ في الحفظ: " + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "نشر التبرع فوراً";
+      }
+    }
+  </script>
+</body>
+</html>
